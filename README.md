@@ -13,6 +13,10 @@ Libraries used:
 - mongoose
 - morgan
 - winston
+- mocha
+- supertest
+- chai
+- chai-http
 
 ## Get Started
 Just git clone the repository and run `npm i` and then `npm run dev` to start nodemon
