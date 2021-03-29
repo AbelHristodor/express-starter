@@ -7,7 +7,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
-  defaultMeta: { service: 'user - service' }
+  // defaultMeta: { service: 'user - service' }
 });
 
 if (process.env.NODE_ENV !== 'production') {

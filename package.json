@@ -1,13 +1,13 @@
 {
   "name": "express-starter",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Simple ExpressJS boilerplate",
   "main": "app.js",
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "lint": "eslint --fix src",
-    "test": "mecha --exit"
+    "test": "mocha test/**/*.js --exit"
   },
   "author": "Abel Hristodor",
   "license": "ISC",

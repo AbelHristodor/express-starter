@@ -13,17 +13,17 @@ const api = require('./api');
 // Allows only requests from a list of domains
 const whitelist = ['http://localhost:4000', 'http://localhost:3000']; // white list consumers
 const corsOptions = {
-  origin(origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(null, false);
-    }
-  },
-  methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-  credentials: true, // Credentials are cookies, authorization headers or TLS client certificates.
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'device-remember-token', 'Access-Control-Allow-Origin', 'Origin', 'Accept']
+    origin(origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(null, false);
+        }
+    },
+    methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+    credentials: true, // Credentials are cookies, authorization headers or TLS client certificates.
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'device-remember-token', 'Access-Control-Allow-Origin', 'Origin', 'Accept']
 };
 
 // Standard middlewares
@@ -39,30 +39,30 @@ app.use('/api', api);
 // Route not found middleware
 // eslint-disable-next-line no-unused-vars
 app.use((req, res, next) => {
-  // Create error and add some info to it
-  const error = new Error('Route not found');
-  error.statusCode = 404;
+    // Create error and add some info to it
+    const error = new Error('Route not found');
+    error.statusCode = 404;
 
-  // Sending error to the errorHandler middleware
-  next(error);
+    // Sending error to the errorHandler middleware
+    next(error);
 });
 
 // Error handlers after all other middlewares
 // eslint-disable-next-line no-unused-vars
 app.use((error, req, res, next) => {
-  // Generic Error handler
+    // Generic Error handler
 
-  // If status code of error not found then set it to a generic 500 internal server error
-  if (!error.statusCode) error.statusCode = 500;
+    // If status code of error not found then set it to a generic 500 internal server error
+    if (!error.statusCode) error.statusCode = 500;
 
-  // Send error
-  res.status(error.statusCode).send({
-    error: {
-      status: error.statusCode,
-      message: error.message || 'Internal Server Error',
-      stack: error.stack
-    }
-  });
+    // Send error
+    res.status(error.statusCode).send({
+        error: {
+            status: error.statusCode,
+            message: error.message || 'Internal Server Error',
+            stack: error.stack
+        }
+    });
 });
 
 // Starting Server
