@@ -4,11 +4,12 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const app = express();
 
-const api = require('./api');
+const logger = require('./src/utils/logger');
+const sequelize = require('./src/db');
 
 // Allows only requests from a list of domains
 const whitelist = ['http://localhost:4000', 'http://localhost:3000']; // white list consumers
@@ -34,7 +35,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 // API routes
-app.use('/api', api);
+app.use('/api/user', require('./src/routes/user'));
 
 // Route not found middleware
 // eslint-disable-next-line no-unused-vars
@@ -66,11 +67,19 @@ app.use((error, req, res, next) => {
 });
 
 // Starting Server
-const port = process.env.EXPRESS_PORT || 3000;
+const port = process.env.EXPRESS_PORT || 4000;
 const host = process.env.EXPRESS_HOST || 'localhost';
 
-app.listen(port, () => {
-  /* eslint-disable no-console */
-  console.log(`Listening: http://${host}:${port}`);
-  /* eslint-enable no-console */
-});
+const start = async () => {
+    try {
+        await sequelize.sync({ force: true }); // Reset DB every time
+
+        app.listen(port, () => {
+            logger.info(`Listening: http://${host}:${port}`);
+        });
+    } catch (err) {
+        logger.error(err);
+    }
+};
+
+start();

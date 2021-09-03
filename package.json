@@ -4,14 +4,16 @@
   "description": "Simple ExpressJS boilerplate",
   "main": "app.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "start": "node app.js",
+    "dev": "nodemon --inspect=0.0.0.0 app.js",
     "lint": "eslint --fix src",
-    "test": "mocha test/**/*.js --exit"
+    "test": "mocha test/**/*.js --exit",
+    "migrate": "node src/migrate.js"
   },
   "author": "Abel Hristodor",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "chai": "^4.3.4",
     "chai-http": "^4.3.0",
     "cookie-parser": "^1.4.5",
@@ -19,10 +21,10 @@
     "dotenv": "^8.2.0",
     "eslint": "^7.22.0",
     "express": "^4.17.1",
-    "express-async-handler": "^1.1.4",
     "helmet": "^4.2.0",
-    "mongoose": "^5.12.2",
     "morgan": "^1.10.0",
+    "pg": "^8.7.1",
+    "sequelize": "^6.6.5",
     "winston": "^3.3.3"
   },
   "devDependencies": {
