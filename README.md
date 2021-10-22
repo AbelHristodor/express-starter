@@ -1,7 +1,7 @@
 # Express-Starter
 
 Simple and easy to use ExpressJS app starter that I often use.
-It includes support for MongoDB using mongoose, some default 404 and generic error middlewares and a logger as well.
+It includes support for Sequelize, some default 404 and generic error middlewares and a logger as well.
 
 Libraries used:
 - cookie-parser
