@@ -10,7 +10,6 @@ Libraries used:
 - eslint
 - express-async-handler
 - helmet
-- mongoose
 - morgan
 - winston
 - mocha
