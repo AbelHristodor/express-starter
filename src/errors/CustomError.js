@@ -1,13 +1,8 @@
 // Generic Error Handler
 class CustomError extends Error {
-  constructor(statusCode, message) {
-    super();
-    this.statusCode = statusCode;
-    this.message = message;
-  }
-
-  serializeErrors() {
-    return [{ message: 'Internal Server Error' }];
+  constructor(message) {
+    super(message);
+    this.statusCode = 500;
   }
 }
 
