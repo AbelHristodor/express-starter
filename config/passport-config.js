@@ -3,7 +3,7 @@ const GoogleStrategy = require('passport-google-oauth20');
 
 const User = require('../src/models/User');
 const logger = require('./winston');
-const GenericError = require('../src/utils/GenericError');
+const BadRequestError = require('../src/errors/badRequestError');
 
 passport.serializeUser((user, done) => {
   done(null, user);
@@ -13,10 +13,10 @@ passport.deserializeUser(async (id, done) => {
   // TODO: Find user and return done(null, user) if successful
   try {
     const user = await User.findById(id).exec();
-    if (!user) throw new GenericError(500, "Can't find user");
+    if (!user) throw new BadRequestError('User not found');
     return done(null, user);
   } catch (err) {
-    throw new GenericError(500, 'Error while deserializing user');
+    throw new BadRequestError('Error while deserializing user');
   }
 });
 
@@ -44,7 +44,7 @@ const googleAuth = new GoogleStrategy(
     })
       .save()
       .catch(() => {
-        throw new GenericError(500, 'Error while creating user');
+        throw new BadRequestError('Error while creating user');
       });
     return done(null, createdUser);
   },

@@ -1,71 +1,49 @@
-const { DataTypes } = require('sequelize');
-const bcrypt = require('bcrypt');
+/* eslint-disable object-curly-newline */
+/* eslint-disable operator-linebreak */
+const mongoose = require('mongoose');
+const validator = require('validator');
 
-const db = require('../db');
+const { Schema } = mongoose;
 
-const User = db.define('User', {
-    first_name: {
-        type: DataTypes.STRING,
-        allowNull: false
+const userSchema = new Schema({
+  firstName: { type: String, default: null },
+  lastName: { type: String, default: null },
+  cellular: { type: String, default: null },
+  birthDate: { type: Date, default: null },
+  email: {
+    type: String,
+    lowercase: true,
+    required: true,
+    validate: {
+      validator: validator.isEmail,
+      message: '{VALUE} is not a valid email',
     },
-    last_name: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
-    },
-    password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    phone: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: null,
-    },
-    is_admin: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-    },
-    is_mod: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-    },
-    is_active: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true
-    },
-    is_client: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-    },
-}, {
-    hooks: {
-        beforeCreate: async (user) => {
-            if (user.password) {
-                const salt = await bcrypt.genSaltSync(10);
-                user.password = bcrypt.hashSync(user.password, salt);
-            }
-        },
-        beforeUpdate: async (user) => {
-            if (user.password) {
-                const salt = await bcrypt.genSaltSync(10);
-                user.password = bcrypt.hashSync(user.password, salt);
-            }
-        }
-    },
-    instanceMethods: {
-        validatePassword: (password) => bcrypt.compareSync(password, this.password)
-    }
+  },
+  // For email auth
+  password: { type: String, default: null },
+  // For Google Auth
+  googleId: { type: String, default: null },
+  // Meta Data
+  createdAt: { type: Date, default: new Date() },
+  lastLoggedIn: { type: Date, default: new Date() },
+  // Password Reset Token
+  resetToken: { type: String },
+  resetTokenExpiry: { type: 'Number' },
+  isActive: { type: Boolean, default: true },
 });
 
-User.prototype.validatePassword = async (password, hash) => bcrypt.compareSync(password, hash);
+// eslint-disable-next-line func-names
+userSchema.methods.publicFields = function () {
+  const { _id, email, firstName, lastName, plan, birthDate, cellular } = this;
+  return {
+    id: _id,
+    email,
+    firstName,
+    lastName,
+    plan,
+    birthDate,
+    cellular,
+  };
+};
 
-module.exports = User;
+module.exports = mongoose.model('User', userSchema);

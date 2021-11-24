@@ -1,7 +1,8 @@
 # Express-Starter
 
 Simple and easy to use ExpressJS app starter that I often use.
-It includes support for Sequelize, some default 404 and generic error middlewares and a logger as well.
+It includes support for Mongodb, some default 404 and generic error middlewares and a logger as well.
+An auth system with PassportJS and Google OAUTH2 is included
 
 Libraries used:
 
@@ -9,7 +10,6 @@ Libraries used:
 - cors
 - dotenv
 - eslint
-- express-async-handler
 - helmet
 - morgan
 - winston

@@ -1,13 +1,15 @@
-const Sequelize = require('sequelize');
+// Database connection config file
+const mongoose = require('mongoose');
+const logger = require('./winston');
+const DatabaseConnectionError = require('../src/errors/databaseConnError');
 
-const sequelize = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASSWORD,
-    {
-        host: process.env.DB_HOST,
-        dialect: 'postgres'
-    }
-);
+mongoose.Promise = global.Promise;
 
-module.exports = sequelize;
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => logger.info('Connected to MongoDB'))
+  .catch(() => {
+    throw new DatabaseConnectionError();
+  });
+
+module.exports = mongoose;
