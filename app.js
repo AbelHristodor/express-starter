@@ -4,31 +4,23 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const app = express();
 
-const logger = require('./src/utils/logger');
-const sequelize = require('./src/db');
+// Config and Helpers
+const db = require('./config/db');
+const logger = require('./config/winston');
+const morganMiddleware = require('./config/morgan');
+const corsOptions = require('./config/cors');
 
-// Allows only requests from a list of domains
-const whitelist = ['http://localhost:4000', 'http://localhost:3000']; // white list consumers
-const corsOptions = {
-    origin(origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(null, false);
-        }
-    },
-    methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
-    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-    credentials: true, // Credentials are cookies, authorization headers or TLS client certificates.
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'device-remember-token', 'Access-Control-Allow-Origin', 'Origin', 'Accept']
-};
+// Error Handler & Errors
+const errorHandler = require('./src/middlewares/errorHandler');
+const NotFoundError = require('./src/errors/notFoundError');
 
 // Standard middlewares
-app.use(morgan(process.env.LOGGER_FORMAT));
+app.use(morganMiddleware);
 app.use(helmet());
 app.use(cors(corsOptions));
 app.use(cookieParser());
@@ -39,47 +31,27 @@ app.use('/api/user', require('./src/routes/user'));
 
 // Route not found middleware
 // eslint-disable-next-line no-unused-vars
-app.use((req, res, next) => {
-    // Create error and add some info to it
-    const error = new Error('Route not found');
-    error.statusCode = 404;
-
-    // Sending error to the errorHandler middleware
-    next(error);
+app.all('*', async (req, res, next) => {
+  throw new NotFoundError();
 });
 
 // Error handlers after all other middlewares
-// eslint-disable-next-line no-unused-vars
-app.use((error, req, res, next) => {
-    // Generic Error handler
-
-    // If status code of error not found then set it to a generic 500 internal server error
-    if (!error.statusCode) error.statusCode = 500;
-
-    // Send error
-    res.status(error.statusCode).send({
-        error: {
-            status: error.statusCode,
-            message: error.message || 'Internal Server Error',
-            stack: error.stack
-        }
-    });
-});
+app.use(errorHandler);
 
 // Starting Server
 const port = process.env.EXPRESS_PORT || 4000;
 const host = process.env.EXPRESS_HOST || 'localhost';
 
 const start = async () => {
-    try {
-        await sequelize.sync({ force: true }); // Reset DB every time
+  try {
+    await db.sync({ force: true }); // Reset DB every time
 
-        app.listen(port, () => {
-            logger.info(`Listening: http://${host}:${port}`);
-        });
-    } catch (err) {
-        logger.error(err);
-    }
+    app.listen(port, () => {
+      logger.info(`Listening: http://${host}:${port}`);
+    });
+  } catch (err) {
+    logger.error(err);
+  }
 };
 
 start();

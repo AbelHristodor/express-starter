@@ -1,10 +1,14 @@
 // Generic Error Handler
-class ErrorHandler extends Error {
+class CustomError extends Error {
   constructor(statusCode, message) {
     super();
     this.statusCode = statusCode;
     this.message = message;
   }
+
+  serializeErrors() {
+    return [{ message: 'Internal Server Error' }];
+  }
 }
 
-module.exports = ErrorHandler;
+module.exports = CustomError;
