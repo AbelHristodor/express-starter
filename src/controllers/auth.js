@@ -21,7 +21,7 @@ const googleLogin = (req, res, next) => {
   /* Google Oauth2 handler to register/login users */
 
   req.login(req.user, (err) => {
-    if (err) throw new BadRequestError('Unknown Error');
+    if (err) next(new BadRequestError('Unknown Error'));
     const userJwt = generateToken(req.user.id);
     req.session.jwt = userJwt;
 
@@ -29,13 +29,13 @@ const googleLogin = (req, res, next) => {
   });
 };
 
-const passwordSignup = async (req, res) => {
+const passwordSignup = async (req, res, next) => {
   /* Password Signup function to register a new user */
 
   const { email, password, firstName, lastName } = req.body;
 
   const existingUser = await User.findOne({ email });
-  if (existingUser) throw new BadRequestError('Email in use');
+  if (existingUser) next(new BadRequestError('Email in use'));
 
   // User does not exist
 
@@ -62,23 +62,23 @@ const passwordSignup = async (req, res) => {
   });
 };
 
-const passwordLogin = async (req, res) => {
+const passwordLogin = async (req, res, next) => {
   /* Password Login function to authenticate registered users */
 
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
   // Check if user exists in db
-  if (!user) throw new BadRequestError('Invalid Credentials');
+  if (!user) next(new BadRequestError('Invalid Credentials'));
 
   // Check if user has logged in with google
   if (user.googleId && !user.password) {
-    throw new BadRequestError('Wrong Provider');
+    next(new BadRequestError('Wrong Provider'));
   }
 
   // Compare passwords
   const passwordsMatch = await bcrypt.compare(password, user.password);
-  if (!passwordsMatch) throw new BadRequestError('Invalid Credentials');
+  if (!passwordsMatch) next(new BadRequestError('Invalid Credentials'));
 
   user.lastLoggedIn = new Date();
   const loggedInUser = user.save();
@@ -94,12 +94,12 @@ const passwordLogin = async (req, res) => {
   });
 };
 
-const requestReset = async (req, res) => {
+const requestReset = async (req, res, next) => {
   const { email } = req.body;
 
   // Find user by email if it exists
   const user = await User.findOne({ email });
-  if (!user) throw new BadRequestError('Email not found');
+  if (!user) next(new BadRequestError('Email not found'));
 
   // Generate and save reset token
   const resetToken = (await promisify(randomBytes)(20)).toString('hex');
@@ -123,14 +123,14 @@ const requestReset = async (req, res) => {
   return res.status(200).send({ token: resetToken, expires: resetTokenExpiry });
 };
 
-const resetPassword = async (req, res) => {
+const resetPassword = async (req, res, next) => {
   const { resetToken, password } = req.body;
 
   /* Find user by reset token */
   const user = await User.findOne({ resetToken })
     .where('resetTokenExpiry')
     .gt(Date.now());
-  if (!user) throw new BadRequestError('Invalid or expired token');
+  if (!user) next(new BadRequestError('Invalid or expired token'));
 
   // Update password
   const newPassword = await bcrypt.hash(password, 10);

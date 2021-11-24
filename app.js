@@ -1,11 +1,11 @@
 const path = require('path');
 const express = require('express');
-const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 
+require('express-async-errors');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const app = express();
@@ -41,7 +41,7 @@ app.use('/api/user', require('./src/routes/user'));
 // Route not found middleware
 // eslint-disable-next-line no-unused-vars
 app.all('*', async (req, res, next) => {
-  throw new NotFoundError();
+  next(new NotFoundError());
 });
 
 // Error handlers after all other middlewares
